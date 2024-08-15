@@ -1,0 +1,30 @@
+// Initialize the Cesium Viewer in the HTML element with the `cesiumContainer`
+ID. const viewer = new Cesium.Viewer('cesiumContainer', { terrain:
+Cesium.Terrain.fromWorldTerrain(), }); // Fly the camera to San Francisco at the
+given longitude, latitude, and height. viewer.camera.flyTo({ destination :
+Cesium.Cartesian3.fromDegrees( //-122.4175, 37.655,
+-118.60788107358881,34.42499800266514,400), orientation : { heading :
+Cesium.Math.toRadians(0.0), pitch : Cesium.Math.toRadians(-15.0), } }); const
+geoJsonUrl =
+'https://raw.githubusercontent.com/wenhaowuengeo/ENGEO_CesiumJS3D_Test/main/sample_data_gjson.geojson';
+// Load the GeoJSON data from the URL
+Cesium.GeoJsonDataSource.load(geoJsonUrl).then(dataSource => {
+viewer.dataSources.add(dataSource); // Get the entities from the dataSource
+const entities = dataSource.entities.values; for (let i = 0; i <
+entities.length; i++) { const entity = entities[i]; // Extract the Longitude,
+Latitude, and elevation attributes const longitude =
+Number(entity.properties.Longitude.getValue()); const latitude =
+Number(entity.properties.Latitude.getValue()); const elevation =
+Number(entity.properties.Elevation ? entity.properties.Elevation.getValue() :
+0); const height = Number(entity.properties['Minimum Specified Compaction (%)']
+? entity.properties['Minimum Specified Compaction (%)'].getValue() : 0)-50; //
+Create a cylinder with the specified elevation entity.cylinder = new
+Cesium.CylinderGraphics({ length: (height - 30) * 2, // Height of the cylinder
+topRadius: 1, // Radius of the top of the cylinder bottomRadius: 1, // Radius of
+the bottom of the cylinder material: Cesium.Color.BLUE.withAlpha(0.5), outline:
+true, outlineColor: Cesium.Color.BLACK, heightReference:
+Cesium.HeightReference.CLAMP_TO_GROUND }); // Position the cylinder correctly
+entity.position = Cesium.Cartesian3.fromDegrees( longitude, latitude, elevation
+// Position the cylinder such that it extrudes from the surface ); } }); // Add
+Cesium OSM Buildings, a global 3D buildings layer. const buildingTileset = await
+Cesium.createOsmBuildingsAsync(); viewer.scene.primitives.add(buildingTileset);
